@@ -80,6 +80,7 @@ public abstract class BaseDaoImpl<T> {
 				// 父类可以定义一个抽象方法，让不同的子类去实现不同的方法
 				// this.方法，谁调用方法this就指向谁
 				tList.add(this.getRow(rs));
+//				Product product = null;
 //				product = new Product();
 //				product.setId(rs.getInt("id"));
 //				product.setName(rs.getString("name"));
@@ -98,7 +99,9 @@ public abstract class BaseDaoImpl<T> {
 		}
 	}
 
-	protected void update(String sql, Object[] param) {
+	//jdk 1.5新特性，可变参数int[]可写为int... 
+	//可变参数只能放在方法传入参数的最后一个
+	protected void update(String sql, Object... param) {
 		// String sql = "update product set price = ?, name = ?, remark = ?
 		// where id = ?";
 		// 1、获得数据库的连接对象

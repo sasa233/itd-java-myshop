@@ -199,7 +199,8 @@ public class ProductDaoImpl extends BaseDaoImpl<Product> { // 此处由子类确
 	// 方法参数超过1-2个，需要进行封装；只有1个的话，就直接传入——参数设计越简单越好
 	public void delete(int id) {
 		String sql = "delete from product where id = ?";
-		super.update(sql, new Object[] { id });
+		super.update(sql, id);
+		//super.update(sql, new Object[] { new Integer(id) });
 		// // 1、获得数据库的连接对象
 		// Connection connection = JdbcUtil.getConnection(); // Ctrl + L???
 		// // 2、创建执行SQL语句prepareStatement对象
