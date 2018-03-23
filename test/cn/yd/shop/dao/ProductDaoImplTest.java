@@ -46,25 +46,25 @@ public class ProductDaoImplTest {
 	@Test
 	public void testSave() {
 		Product product = new Product();
-		product.setName("未知笔记本电脑");
-		product.setRemark("IBM");
-		product.setPrice(10099.99);
+		product.setName("黄明昊笔记本电脑");
+		product.setRemark("Dream");
+		product.setPrice(999999.99);
 		daoImpl.save(product);
 	}
 
 	@Test
 	public void testUpdateProduct() {
 		Product product = new Product();
-		product.setName("联想笔记本电脑");
-		product.setRemark("IBM");
-		product.setPrice(9999.99);
-		product.setId(9);
+		product.setName("黄明昊");
+		product.setRemark("Heart");
+		product.setPrice(999999.99);
+		product.setId(15);
 		daoImpl.update(product);
 	}
 
 	@Test
 	public void testDelete() {
-		daoImpl.delete(6);
+		daoImpl.delete(13);
 	}
 
 }
