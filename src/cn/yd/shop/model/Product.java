@@ -1,5 +1,6 @@
 package cn.yd.shop.model;
 
+import java.math.BigDecimal;
 //CTRL + Tree, 可查看父子类，有子类有父类，建议使用父类，父类可使用的方法更多（有接口建议用接口→面向接口编程）
 import java.util.Date; 
 
@@ -24,7 +25,8 @@ public class Product extends Object {
 	//因此在model中通常都采用引用类型
 	private Integer id = null; 
 	private String name;
-	private Double price;
+	// private Double price;
+	private BigDecimal price;
 	private String pic;
 	private String remark;
 	private Date date;
@@ -48,10 +50,17 @@ public class Product extends Object {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public Double getPrice() {
+//	public Double getPrice() {
+//		return price;
+//	}
+//	public void setPrice(Double price) {
+//		this.price = price;
+//	}
+	public BigDecimal getPrice() {
 		return price;
 	}
-	public void setPrice(Double price) {
+
+	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
 	public String getPic() {

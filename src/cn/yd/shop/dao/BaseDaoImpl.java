@@ -5,8 +5,11 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import java.lang.reflect.Field;
 
 import cn.yd.shop.model.Product;
 import cn.yd.shop.util.JdbcUtil;
@@ -29,6 +32,50 @@ public abstract class BaseDaoImpl<T> {
 	// 3、如果子类中重写了父类中的一个方法，那么在调用这个方法的时候，将会调用子类中的这个方法；（动态连接、动态调用）
 	// 4、变量不能被重写（覆盖），”重写“的概念只针对方法，如果在子类中”重写“了父类中的变量，那么在编译时会报错。
 
+	protected T getByID(String sql, Object id, Class<T> clazz) throws Exception{
+		T t = null;
+		Connection connection = null; // 先声明后赋值
+		PreparedStatement pre = null;
+		ResultSet rs = null;
+		Product product = null;
+		// 1、获得数据库的连接对象
+		connection = JdbcUtil.getConnection(); // Ctrl + L???
+		// 2、创建执行SQL语句prepareStatement对象
+		try {
+			pre = connection.prepareStatement(sql); // cmd + shift + F 格式化快捷键
+			// 3、对每个？进行赋值操作
+			pre.setObject(1, id);
+			// 4、执行SQL语句(在java中 insert update delete 都称为update)
+			// pre.executeUpdate();
+			rs = pre.executeQuery(); // 用来存储查询返回的结果集
+			ResultSetMetaData metaData = rs.getMetaData();
+			if (rs.next()) {
+				System.out.println(this);
+				// 每条记录对应Product对象
+				T model = clazz.newInstance();
+				// 1、获取结果集的字段名称（if外）
+				// 2、通过for循环获取列/字段的名称
+				for (int i = 1; i <= metaData.getColumnCount(); i++) { //列从第一列开始
+					String colName = metaData.getColumnName(i); //根据列的索引获取列的名称
+					// 4、根据列名获取当前类的属性名
+					Field field = clazz.getDeclaredField(colName);
+					// 5、取消安全检查，使得private被访问
+					field.setAccessible(true);
+					field.set(model, rs.getObject(colName));
+				}
+				t = model;
+			}			
+			// 5、释放connection连接对象, 调用工具类的方法
+			// connection.close();
+			return t;
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		} finally {
+			JdbcUtil.close(connection, pre, rs);
+		}
+	}
+	
+	
 	protected T getByID(String sql, Object id, RowMapper<T> mapper) {
 		// String sql = "select * from product where id = ?";
 		T t = null;
@@ -51,18 +98,63 @@ public abstract class BaseDaoImpl<T> {
 				//t = this.getRow(rs);
 				t = mapper.mapRow(rs);
 			}
+			
 			// 5、释放connection连接对象, 调用工具类的方法
 			// connection.close();
 			return t;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			throw new RuntimeException(e);
+		} finally {
+			JdbcUtil.close(connection, pre, rs);
+		}
+	}
+	
+	protected ArrayList<T> queryByName(String sql, Object[] param, Class<T> clazz) throws Exception {
+		ArrayList<T> tList = new ArrayList<T>();
+		Connection connection = null; // 先声明后赋值
+		PreparedStatement pre = null;
+		ResultSet rs = null;
+		Product product = null;
+		// 1、获得数据库的连接对象
+		connection = JdbcUtil.getConnection(); // cmd + 2 + R 出现变量类型和名字
+		// 2、创建执行SQL语句prepareStatement对象
+		try {
+			pre = connection.prepareStatement(sql); // cmd + shift + F 格式化快捷键
+			// 3、对每个？进行赋值操作
+			for (int i = 0; i < param.length; i++) {
+				pre.setObject(i + 1, param[i]); // 把数组第i个值放到第i+1个占位符中去
+			}
+			// 4、执行SQL语句(在java中 insert update delete 都称为update)
+			// pre.executeUpdate();
+			rs = pre.executeQuery(); // 用来存储查询返回的结果集
+			ResultSetMetaData metaData = rs.getMetaData();
+			while (rs.next()) {
+				// 每条记录对应Product对象
+				T model = clazz.newInstance();
+				// 通过反射进行对象的属性动态赋值
+				// 1、获取结果集的字段名称（while外）
+				// 2、通过for循环获取列/字段的名称
+				for (int i = 1; i <= metaData.getColumnCount(); i++) { //列从第一列开始
+					String colName = metaData.getColumnName(i); //根据列的索引获取列的名称
+					// 4、根据列名获取当前类的属性名
+					Field field = clazz.getDeclaredField(colName);
+					// 5、取消安全检查，使得private被访问
+					field.setAccessible(true);
+					field.set(model, rs.getObject(colName));
+				}
+				tList.add(model);
+			}
+			// 5、释放connection连接对象, 调用工具类的方法
+			// connection.close();
+			return tList;
+		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		} finally {
 			JdbcUtil.close(connection, pre, rs);
 		}
 	}
 
-	protected ArrayList<T> queryByName(String sql, Object[] param,RowMapper<T> mapper)  {
+	protected ArrayList<T> queryByName(String sql, Object[] param, RowMapper<T> mapper) {
 		// ArrayList<Product> proList = new ArrayList<Product>();
 		// String sql = "select * from product where name like ?";
 		ArrayList<T> tList = new ArrayList<T>();
@@ -87,7 +179,7 @@ public abstract class BaseDaoImpl<T> {
 				// 此处代码只有子类才知道怎么写，父类不知道如下这些函数，父类实现不了的部分需要交给子类去实现
 				// 父类可以定义一个抽象方法，让不同的子类去实现不同的方法
 				// this.方法，谁调用方法this就指向谁
-				//tList.add(this.getRow(rs));
+				// tList.add(this.getRow(rs));
 				tList.add(mapper.mapRow(rs));
 				// Product product = null;
 				// product = new Product();
@@ -101,7 +193,6 @@ public abstract class BaseDaoImpl<T> {
 			// connection.close();
 			return tList;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			throw new RuntimeException(e);
 		} finally {
 			JdbcUtil.close(connection, pre, rs);
@@ -132,7 +223,6 @@ public abstract class BaseDaoImpl<T> {
 			// 5、释放connection连接对象
 			// connection.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			throw new RuntimeException(e);
 		} finally {
 			JdbcUtil.close(connection, pre);

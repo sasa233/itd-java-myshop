@@ -3,6 +3,7 @@ package cn.yd.shop.dao;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.*;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -37,7 +38,7 @@ public class ProductDaoImplTest {
 	}
 	
 	@Test
-	public void testQueryByName1() {
+	public void testQueryByName1() throws Exception {
 		ArrayList<Product> proList = daoImpl.queryByName("笔记", 1, 3);
 		for (Product temp : proList) {
 			System.out.println(temp.toString());
@@ -45,9 +46,9 @@ public class ProductDaoImplTest {
 	}
 
 	@Test
-	public void testGetByID() {
+	public void testGetByID() throws Exception {
 		System.out.println("......");
-		Product product = daoImpl.getByID(3);
+		Product product = daoImpl.getByID(7);
 		System.out.println(product);
 	}
 
@@ -56,7 +57,7 @@ public class ProductDaoImplTest {
 		Product product = new Product();
 		product.setName("sasa加油");
 		product.setRemark("Dream");
-		product.setPrice(999999.99);
+		product.setPrice(new BigDecimal(999999.99));
 		daoImpl.save(product);
 	}
 
@@ -65,7 +66,7 @@ public class ProductDaoImplTest {
 		Product product = new Product();
 		product.setName("黄明昊");
 		product.setRemark("Heart");
-		product.setPrice(999999.99);
+		product.setPrice(new BigDecimal(999999.99));
 		product.setId(15);
 		daoImpl.update(product);
 	}

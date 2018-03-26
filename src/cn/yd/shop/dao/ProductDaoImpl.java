@@ -71,22 +71,24 @@ public class ProductDaoImpl extends BaseDaoImpl<Product> { // 此处由子类确
 
 	}
 
-	public ArrayList<Product> queryByName(String name, int page, int size) {
+	public ArrayList<Product> queryByName(String name, int page, int size) throws Exception{
 		// ArrayList<Product> proList = new ArrayList<Product>();
 		String sql = "select * from product where name like ? limit ?, ?";
 		// return super.queryByName(sql, "%" + name + "%", (page-1)*size, size);
+		
 		return super.queryByName(sql, new Object[] { "%" + name + "%", (page - 1) * size, size },
-				new RowMapper<Product>() {
-					//匿名类，new出匿名对象
-					@Override
-					public Product mapRow(ResultSet rs) throws SQLException {
-						Product product = new Product();
-						product.setId(rs.getInt("id"));
-						product.setName(rs.getString("name"));
-						product.setPrice(rs.getDouble("price"));
-						return product;
-					}
-				});
+				Product.class);
+//				new RowMapper<Product>() {
+//					//匿名类，new出匿名对象
+//					@Override
+//					public Product mapRow(ResultSet rs) throws SQLException {
+//						Product product = new Product();
+//						product.setId(rs.getInt("id"));
+//						product.setName(rs.getString("name"));
+//						product.setPrice(rs.getDouble("price"));
+//						return product;
+//					}
+//				});
 		// 第二个参数是开始查询的第几条记录，默认第一条为0；第三个参数是每页有多少条数据
 	}
 
@@ -103,7 +105,7 @@ public class ProductDaoImpl extends BaseDaoImpl<Product> { // 此处由子类确
 				Product product = new Product();
 				product.setId(rs.getInt("id"));
 				product.setName(rs.getString("name"));
-				product.setPrice(rs.getDouble("price"));
+				product.setPrice(rs.getBigDecimal("price"));
 				product.setRemark(rs.getString("remark"));
 				return product;
 			}
@@ -142,18 +144,21 @@ public class ProductDaoImpl extends BaseDaoImpl<Product> { // 此处由子类确
 	}
 
 	// 通过id获取Product
-	public Product getByID(int id) {
+	public Product getByID(int id) throws Exception {
 		String sql = "select * from product where id = ?";
 		// return super.getByID(sql, id);
-		return super.getByID(sql, id, new RowMapper<Product>() {
-			@Override
-			public Product mapRow(ResultSet rs) throws SQLException {
-				Product product = new Product();
-				product.setId(rs.getInt("id"));
-				product.setName(rs.getString("name"));
-				return product;
-			}
-		});
+		return super.getByID(sql, id, 
+				Product.class);
+//				new RowMapper<Product>() {
+//			
+//			@Override
+//			public Product mapRow(ResultSet rs) throws SQLException {
+//				Product product = new Product();
+//				product.setId(rs.getInt("id"));
+//				product.setName(rs.getString("name"));
+//				return product;
+//			}
+//		});
 		// Connection connection = null; // 先声明后赋值
 		// PreparedStatement pre = null;
 		// ResultSet rs = null;
