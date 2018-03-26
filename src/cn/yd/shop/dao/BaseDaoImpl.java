@@ -18,11 +18,19 @@ public abstract class BaseDaoImpl<T> {
 
 	// 父类可以定义一个抽象方法，让不同的子类去实现不同的方法
 	// 类中有抽象方法，类必须声明为抽象类
-	// 接口中所有的方法都是接口方法，可不用写abstract；抽象类中可以有部分抽象方法、部分实现方法；类中所有方法都是实现方法
-	protected abstract T getRow(ResultSet rs) throws SQLException; //子类实现这方法时处理抛出的异常
+	// 接口中所有的方法都是接口方法、都public，可不用写abstract；抽象类中可以有部分抽象方法、部分实现方法；类中所有方法都是实现方法
+	// T代表未知的类型
+	// protected abstract T getRow(ResultSet rs) throws SQLException; // 子类实现这方法时处理抛出的异常
+	// 此处SQLException可以改为Exception，子类的此方法仍可使用SQLException
+	// 因为父类的引用，可以指向子类的对象；反之不行
+	// 对于多态，可以总结以下几点：
+	// 1、使用父类类型的引用指向子类的对象；
+	// 2、该引用只能调用父类中定义的方法和变量；
+	// 3、如果子类中重写了父类中的一个方法，那么在调用这个方法的时候，将会调用子类中的这个方法；（动态连接、动态调用）
+	// 4、变量不能被重写（覆盖），”重写“的概念只针对方法，如果在子类中”重写“了父类中的变量，那么在编译时会报错。
 
-	protected T getByID(String sql, Object id) {
-		//String sql = "select * from product where id = ?";
+	protected T getByID(String sql, Object id, RowMapper<T> mapper) {
+		// String sql = "select * from product where id = ?";
 		T t = null;
 		Connection connection = null; // 先声明后赋值
 		PreparedStatement pre = null;
@@ -40,7 +48,8 @@ public abstract class BaseDaoImpl<T> {
 			rs = pre.executeQuery(); // 用来存储查询返回的结果集
 			if (rs.next()) {
 				System.out.println(this);
-				t = this.getRow(rs);
+				//t = this.getRow(rs);
+				t = mapper.mapRow(rs);
 			}
 			// 5、释放connection连接对象, 调用工具类的方法
 			// connection.close();
@@ -52,8 +61,8 @@ public abstract class BaseDaoImpl<T> {
 			JdbcUtil.close(connection, pre, rs);
 		}
 	}
-	
-	protected ArrayList<T> queryByName(String sql, Object[] param) throws SQLException {
+
+	protected ArrayList<T> queryByName(String sql, Object[] param,RowMapper<T> mapper)  {
 		// ArrayList<Product> proList = new ArrayList<Product>();
 		// String sql = "select * from product where name like ?";
 		ArrayList<T> tList = new ArrayList<T>();
@@ -74,19 +83,19 @@ public abstract class BaseDaoImpl<T> {
 			// pre.executeUpdate();
 			rs = pre.executeQuery(); // 用来存储查询返回的结果集
 
-			
 			while (rs.next()) {
 				// 此处代码只有子类才知道怎么写，父类不知道如下这些函数，父类实现不了的部分需要交给子类去实现
 				// 父类可以定义一个抽象方法，让不同的子类去实现不同的方法
 				// this.方法，谁调用方法this就指向谁
-				tList.add(this.getRow(rs));
-//				Product product = null;
-//				product = new Product();
-//				product.setId(rs.getInt("id"));
-//				product.setName(rs.getString("name"));
-//				product.setPrice(rs.getDouble("price"));
-//				product.setRemark(rs.getString("remark"));
-//				proList.add(product);
+				//tList.add(this.getRow(rs));
+				tList.add(mapper.mapRow(rs));
+				// Product product = null;
+				// product = new Product();
+				// product.setId(rs.getInt("id"));
+				// product.setName(rs.getString("name"));
+				// product.setPrice(rs.getDouble("price"));
+				// product.setRemark(rs.getString("remark"));
+				// proList.add(product);
 			}
 			// 5、释放connection连接对象, 调用工具类的方法
 			// connection.close();
@@ -99,8 +108,8 @@ public abstract class BaseDaoImpl<T> {
 		}
 	}
 
-	//jdk 1.5新特性，可变参数int[]可写为int... 
-	//可变参数只能放在方法传入参数的最后一个
+	// jdk 1.5新特性，可变参数int[]可写为int...
+	// 可变参数只能放在方法传入参数的最后一个
 	protected void update(String sql, Object... param) {
 		// String sql = "update product set price = ?, name = ?, remark = ?
 		// where id = ?";

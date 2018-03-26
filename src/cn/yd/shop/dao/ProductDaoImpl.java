@@ -20,15 +20,15 @@ public class ProductDaoImpl extends BaseDaoImpl<Product> { // 此处由子类确
 
 	private int num;
 
-	@Override
-	protected Product getRow(ResultSet rs) throws SQLException {
-		Product product = new Product();
-		product.setId(rs.getInt("id"));
-		product.setName(rs.getString("name"));
-		product.setPrice(rs.getDouble("price"));
-		product.setRemark(rs.getString("remark"));
-		return product;
-	}
+//	@Override
+//	protected Product getRow(ResultSet rs) throws SQLException {
+//		Product product = new Product();
+//		product.setId(rs.getInt("id"));
+//		product.setName(rs.getString("name"));
+//		product.setPrice(rs.getDouble("price"));
+//		product.setRemark(rs.getString("remark"));
+//		return product;
+//	}
 
 	// java中每个类默认由缺省的构造方法，只有构造方法不需要写返回值
 	// 如果显示声明了构造方法，则缺省构造失效
@@ -71,79 +71,118 @@ public class ProductDaoImpl extends BaseDaoImpl<Product> { // 此处由子类确
 
 	}
 
+	public ArrayList<Product> queryByName(String name, int page, int size) {
+		// ArrayList<Product> proList = new ArrayList<Product>();
+		String sql = "select * from product where name like ? limit ?, ?";
+		// return super.queryByName(sql, "%" + name + "%", (page-1)*size, size);
+		return super.queryByName(sql, new Object[] { "%" + name + "%", (page - 1) * size, size },
+				new RowMapper<Product>() {
+					//匿名类，new出匿名对象
+					@Override
+					public Product mapRow(ResultSet rs) throws SQLException {
+						Product product = new Product();
+						product.setId(rs.getInt("id"));
+						product.setName(rs.getString("name"));
+						product.setPrice(rs.getDouble("price"));
+						return product;
+					}
+				});
+		// 第二个参数是开始查询的第几条记录，默认第一条为0；第三个参数是每页有多少条数据
+	}
+
 	// java中集合不限大小
 	// 如果没有给集合制定类型，则默认为object类型，可以指定泛型
 	// 数组和集合的区别：数组限制大小、类型（需指定），集合不限大小、类型，泛型集合不限大小、限类型
-	public ArrayList<Product> queryByName(String name) throws SQLException {
-		//ArrayList<Product> proList = new ArrayList<Product>();
+	public ArrayList<Product> queryByName(String name) {
+		// ArrayList<Product> proList = new ArrayList<Product>();
 		String sql = "select * from product where name like ?";
-		return super.queryByName(sql, new Object[]{"%" + name + "%"});
-//		Connection connection = null; // 先声明后赋值
-//		PreparedStatement pre = null;
-//		ResultSet rs = null;
-//		Product product = null;
-//		// 1、获得数据库的连接对象
-//		JdbcUtil.getConnection(); // cmd + 2 + R 出现变量类型和名字
-//		// 2、创建执行SQL语句prepareStatement对象
-//		try {
-//			pre = connection.prepareStatement(sql); // cmd + shift + F 格式化快捷键
-//			// 3、对每个？进行赋值操作
-//			pre.setString(1, "%" + name + "%");
-//			// 4、执行SQL语句(在java中 insert update delete 都称为update)
-//			// pre.executeUpdate();
-//			rs = pre.executeQuery(); // 用来存储查询返回的结果集
-//			while (rs.next()) {
-//				product = new Product();
-//				product.setId(rs.getInt("id"));
-//				product.setName(rs.getString("name"));
-//				product.setPrice(rs.getDouble("price"));
-//				product.setRemark(rs.getString("remark"));
-//				proList.add(product);
-//			}
-//			// 5、释放connection连接对象, 调用工具类的方法
-//			// connection.close();
-//			return proList;
-//		} catch (SQLException e) {
-//			// TODO Auto-generated catch block
-//			throw new RuntimeException(e);
-//		} finally {
-//			JdbcUtil.close(connection, pre, rs);
-//		}
+		// return super.queryByName(sql, new Object[]{"%" + name + "%"});
+		return super.queryByName(sql, new Object[] { "%" + name + "%" }, new RowMapper<Product>() {
+			@Override
+			public Product mapRow(ResultSet rs) throws SQLException {
+				Product product = new Product();
+				product.setId(rs.getInt("id"));
+				product.setName(rs.getString("name"));
+				product.setPrice(rs.getDouble("price"));
+				product.setRemark(rs.getString("remark"));
+				return product;
+			}
+		});
+		// Connection connection = null; // 先声明后赋值
+		// PreparedStatement pre = null;
+		// ResultSet rs = null;
+		// Product product = null;
+		// // 1、获得数据库的连接对象
+		// JdbcUtil.getConnection(); // cmd + 2 + R 出现变量类型和名字
+		// // 2、创建执行SQL语句prepareStatement对象
+		// try {
+		// pre = connection.prepareStatement(sql); // cmd + shift + F 格式化快捷键
+		// // 3、对每个？进行赋值操作
+		// pre.setString(1, "%" + name + "%");
+		// // 4、执行SQL语句(在java中 insert update delete 都称为update)
+		// // pre.executeUpdate();
+		// rs = pre.executeQuery(); // 用来存储查询返回的结果集
+		// while (rs.next()) {
+		// product = new Product();
+		// product.setId(rs.getInt("id"));
+		// product.setName(rs.getString("name"));
+		// product.setPrice(rs.getDouble("price"));
+		// product.setRemark(rs.getString("remark"));
+		// proList.add(product);
+		// }
+		// // 5、释放connection连接对象, 调用工具类的方法
+		// // connection.close();
+		// return proList;
+		// } catch (SQLException e) {
+		// // TODO Auto-generated catch block
+		// throw new RuntimeException(e);
+		// } finally {
+		// JdbcUtil.close(connection, pre, rs);
+		// }
 	}
 
 	// 通过id获取Product
 	public Product getByID(int id) {
 		String sql = "select * from product where id = ?";
-		return super.getByID(sql, id);
-//		Connection connection = null; // 先声明后赋值
-//		PreparedStatement pre = null;
-//		ResultSet rs = null;
-//		Product product = null;
-//		// 1、获得数据库的连接对象
-//		connection = JdbcUtil.getConnection(); // Ctrl + L???
-//		// 2、创建执行SQL语句prepareStatement对象
-//		try {
-//			pre = connection.prepareStatement(sql); // cmd + shift + F 格式化快捷键
-//			// 3、对每个？进行赋值操作
-//			pre.setInt(1, id);
-//			// 4、执行SQL语句(在java中 insert update delete 都称为update)
-//			// pre.executeUpdate();
-//			rs = pre.executeQuery(); // 用来存储查询返回的结果集
-//			if (rs.next()) {
-//				product = new Product();
-//				product.setName(rs.getString("name"));
-//				product.setPrice(rs.getDouble("price"));
-//				product.setRemark(rs.getString("remark"));
-//			}
-//			// 5、释放connection连接对象, 调用工具类的方法
-//			// connection.close();
-//			return product;
-//		} catch (SQLException e) {
-//			// TODO Auto-generated catch block
-//			throw new RuntimeException(e);
-//		} finally {
-//			JdbcUtil.close(connection, pre, rs);
-//		}
+		// return super.getByID(sql, id);
+		return super.getByID(sql, id, new RowMapper<Product>() {
+			@Override
+			public Product mapRow(ResultSet rs) throws SQLException {
+				Product product = new Product();
+				product.setId(rs.getInt("id"));
+				product.setName(rs.getString("name"));
+				return product;
+			}
+		});
+		// Connection connection = null; // 先声明后赋值
+		// PreparedStatement pre = null;
+		// ResultSet rs = null;
+		// Product product = null;
+		// // 1、获得数据库的连接对象
+		// connection = JdbcUtil.getConnection(); // Ctrl + L???
+		// // 2、创建执行SQL语句prepareStatement对象
+		// try {
+		// pre = connection.prepareStatement(sql); // cmd + shift + F 格式化快捷键
+		// // 3、对每个？进行赋值操作
+		// pre.setInt(1, id);
+		// // 4、执行SQL语句(在java中 insert update delete 都称为update)
+		// // pre.executeUpdate();
+		// rs = pre.executeQuery(); // 用来存储查询返回的结果集
+		// if (rs.next()) {
+		// product = new Product();
+		// product.setName(rs.getString("name"));
+		// product.setPrice(rs.getDouble("price"));
+		// product.setRemark(rs.getString("remark"));
+		// }
+		// // 5、释放connection连接对象, 调用工具类的方法
+		// // connection.close();
+		// return product;
+		// } catch (SQLException e) {
+		// // TODO Auto-generated catch block
+		// throw new RuntimeException(e);
+		// } finally {
+		// JdbcUtil.close(connection, pre, rs);
+		// }
 
 	}
 
@@ -200,7 +239,7 @@ public class ProductDaoImpl extends BaseDaoImpl<Product> { // 此处由子类确
 	public void delete(int id) {
 		String sql = "delete from product where id = ?";
 		super.update(sql, id);
-		//super.update(sql, new Object[] { new Integer(id) });
+		// super.update(sql, new Object[] { new Integer(id) });
 		// // 1、获得数据库的连接对象
 		// Connection connection = JdbcUtil.getConnection(); // Ctrl + L???
 		// // 2、创建执行SQL语句prepareStatement对象

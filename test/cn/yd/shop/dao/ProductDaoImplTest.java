@@ -29,8 +29,16 @@ public class ProductDaoImplTest {
 	}
 
 	@Test
-	public void testQueryByName() throws SQLException {
+	public void testQueryByName() {
 		ArrayList<Product> proList = daoImpl.queryByName("");
+		for (Product temp : proList) {
+			System.out.println(temp.toString());
+		}
+	}
+	
+	@Test
+	public void testQueryByName1() {
+		ArrayList<Product> proList = daoImpl.queryByName("笔记", 1, 3);
 		for (Product temp : proList) {
 			System.out.println(temp.toString());
 		}
@@ -46,7 +54,7 @@ public class ProductDaoImplTest {
 	@Test
 	public void testSave() {
 		Product product = new Product();
-		product.setName("黄明昊笔记本电脑");
+		product.setName("sasa加油");
 		product.setRemark("Dream");
 		product.setPrice(999999.99);
 		daoImpl.save(product);

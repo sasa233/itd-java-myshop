@@ -21,3 +21,5 @@ insert into product (name,price,remark) values ('衫衫西服',3000.00,'这里�
 insert into product (name,price,remark) values ('Iphone6',6000.00,'这里是简单介绍');
 
 select * from product;  
+/* (page - 1)*size  */
+/* select * from product where name like '%电脑%' limit 1, 2 */

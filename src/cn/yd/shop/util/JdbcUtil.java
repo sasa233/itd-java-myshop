@@ -22,6 +22,7 @@ public class JdbcUtil {
 
 	public static Connection getConnection() {
 		String url = "jdbc:mysql://localhost:3306/myshop?useSSL=false&characterEncoding=utf8";
+		//jdbc:mysql://localhost:3306/myshop?characterEncoding=utf8
 		java.sql.Connection connection;
 		try {
 			// JDBC4Connection实现了Collection接口
